@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+using namespace std;
+void max_heapify(vector<int>& marks, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && marks[left] > marks[largest]) {
+        largest = left;
+    }
+
+    if (right < n && marks[right] > marks[largest]) {
+        largest = right;
+    }
+
+    if (largest != i) {
+        swap(marks[i], marks[largest]);
+        max_heapify(marks, n, largest);
+    }
+}
+
+void heapsort(vector<int>& marks, int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        max_heapify(marks, n, i);
+    }
+
+    for (int i = n - 1; i > 0; i--) {
+        swap(marks[0], marks[i]);
+        max_heapify(marks, i, 0);
+    }
+}
+
+int main() {
+	int n;
+	cin>>n;
+    vector<int> marks(n,0);
+    for(int i=0;i<n;i++) cin>>marks[i];
+    heapsort(marks, n);
+    cout << "Sorted marks in descending order: ";
+    for (int i = 0; i < n; i++) {
+        cout << marks[i] << " ";
+    }
+
+    return 0;
+}
