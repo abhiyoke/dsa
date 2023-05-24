@@ -1,0 +1,73 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+// Structure to represent a node in the binary search tree
+struct Node {
+    int key;
+    Node* left;
+    Node* right;
+    Node(int k) : key(k), left(nullptr), right(nullptr) {}
+};
+
+// Function to construct the optimal binary search tree
+Node* constructOBST(const vector<int>& keys, const vector<double>& probabilities, int start, int end, vector<vector<double>>& memo, vector<vector<Node*>>& root) {
+    if (start > end) {
+        return nullptr;
+    }
+
+    if (root[start][end] != nullptr) {
+        return root[start][end];
+    }
+
+    double minCost = numeric_limits<double>::max();
+    int minIndex = -1;
+
+    for (int r = start; r <= end; r++) {
+        double cost = probabilities[r] + ((start <= r - 1) ? memo[start][r - 1] : 0.0) + ((r + 1 <= end) ? memo[r + 1][end] : 0.0);
+
+        if (cost < minCost) {
+            minCost = cost;
+            minIndex = r;
+        }
+    }
+
+    Node* node = new Node(keys[minIndex]);
+    node->left = constructOBST(keys, probabilities, start, minIndex - 1, memo, root);
+    node->right = constructOBST(keys, probabilities, minIndex + 1, end, memo, root);
+
+    memo[start][end] = minCost;
+    root[start][end] = node;
+
+    return node;
+}
+
+// Function to perform an inorder traversal of the binary search tree
+void inorderTraversal(Node* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    inorderTraversal(root->left);
+    cout << root->key << " ";
+    inorderTraversal(root->right);
+}
+
+int main() {
+    // Example keys and access probabilities
+    vector<int> keys = {10, 20, 30, 40, 50};
+    vector<double> probabilities = {0.15, 0.10, 0.05, 0.10, 0.20};
+
+    int n = keys.size();
+    vector<vector<double>> memo(n, vector<double>(n, 0.0));
+    vector<vector<Node*>> root(n, vector<Node*>(n, nullptr));
+
+    Node* optimalBST = constructOBST(keys, probabilities, 0, n - 1, memo, root);
+
+    cout << "Inorder Traversal of Optimal BST: ";
+    inorderTraversal(optimalBST);
+    cout << endl;
+
+    return 0;
+}
